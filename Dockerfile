@@ -1,13 +1,15 @@
+# Используем static-ffmpeg для копирования бинарников
+FROM mwader/static-ffmpeg:latest AS ffmpeg
+
 # Используем официальный образ n8n как базу
 FROM n8nio/n8n:latest
 
-# Переключаемся на root, чтобы установить пакеты
+# Переключаемся на root, чтобы скопировать файлы
 USER root
 
-# Обновляем списки пакетов и устанавливаем ffmpeg
-RUN apt-get update && \
-    apt-get install -y ffmpeg && \
-    rm -rf /var/lib/apt/lists/*
+# Копируем статические бинарники ffmpeg и ffprobe
+COPY --from=ffmpeg /ffmpeg /usr/local/bin/
+COPY --from=ffmpeg /ffprobe /usr/local/bin/
 
-# Возвращаемся к пользователю node (важно для безопасности и работы n8n)
+# Возвращаемся к пользователю node
 USER node
